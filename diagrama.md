@@ -1,3 +1,5 @@
+```mermaid
+
 flowchart TD
     %% Nodos de Inicio y Fin
     Inicio([Inicio]) --> Menu[/Mostrar Menú de Calculadora/]
