@@ -1,3 +1,5 @@
+```mermaid
+
 classDiagram
     %% ==========================================
     %% MODELOS DE DATOS (Entidades de SQLite)
