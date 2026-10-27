@@ -1,42 +1,50 @@
 ```mermaid
 
 flowchart TD
-    %% Nodos de Inicio y Fin
-    Inicio([Inicio]) --> Menu[/Mostrar Menú de Calculadora/]
+    %% Inicio y Carga de Datos
+    Inicio([Inicio]) --> CargarCat[/"Consultar Catálogo de Operaciones desde la BD"/]
+    CargarCat --> MostrarCat[/Mostrar Operaciones Disponibles/]
+    MostrarCat --> SeleccionarOp[/Leer Selección de Operación del Usuario/]
     
-    %% Bucle del Menú
-    Menu --> LeerOpcion[/Leer opción del usuario/]
-    LeerOpcion --> EvaluarOpcion{Evaluar Opción}
-
-    %% Rama 1: Operaciones Básicas (Java)
-    EvaluarOpcion -- "1 a 4: \n(Suma, Resta, Mult, Div)" --> PedirNum[/Pedir Número 1 y Número 2/]
-    PedirNum --> ProcesoJava[Procesar en Java: \nMétodos nativos de Java]
-    ProcesoJava --> MostrarResJava[/Mostrar Resultado/]
-
-    %% Rama 2: Funciones Trigonométricas (Python)
-    EvaluarOpcion -- "5 a 7: \n(Sen, Cos, Tan)" --> PedirAngulo[/Pedir Ángulo en Grados/]
-    PedirAngulo --> LlamadaPython[Java invoca script Python \nvía ProcessBuilder]
-    LlamadaPython --> ProcesoPython[Python calcula función \ntrigonométrica]
-    ProcesoPython --> LeerSalida[Java lee la salida \nestándar de Python]
-    LeerSalida --> MostrarResPython[/Mostrar Resultado/]
-
-    %% Rama 3: Salir
-    EvaluarOpcion -- "8: Salir" --> Fin([Fin del Programa])
-
-    %% Decisión para continuar o terminar
-    MostrarResJava --> Continuar{¿Desea realizar \notra operación?}
-    MostrarResPython --> Continuar
+    %% Validar Existencia de Operación
+    SeleccionarOp --> ValidarOp{"¿Operación<br/>Existe en Catálogo?"}
+    ValidarOp -- No --> MostrarErrOp[/Mostrar 'Operación Inexistente'/] --> Fin0([Fin])
     
-    Continuar -- "Sí" --> Menu
-    Continuar -- "No" --> Fin
+    %% Lectura de Datos de Entrada
+    ValidarOp -- Sí --> DeterminarAridad{"¿Es de<br/>Aridad 2?"}
+    DeterminarAridad -- Sí --> LeerOpDos[/Leer Operando A y Operando B/]
+    DeterminarAridad -- No --> LeerOpUno[/Leer Operando A únicamente/]
+    
+    LeerOpDos --> ChequearTrig{"¿Es de Tipo<br/>TRIGONOMETRICA?"}
+    LeerOpUno --> ChequearTrig
+    
+    ChequearTrig -- Sí --> LeerModo[/Leer Modo de Ángulo: Grados o Radianes/]
+    ChequearTrig -- No --> ValidarJava
+    
+    %% Ruta Java (Operaciones Básicas)
+    LeerModo --> ValidarPython
+    
+    ChequearTrig -- No --> ValidarJava{"¿Validación Previa OK?<br/>(ej: Div por cero)"}
+    ValidarJava -- "No (Div por 0)" --> MarcarErrorJava[Registrar Mensaje de Error]
+    ValidarJava -- Sí --> EjecutarJava[Procesar Operación en Java]
+    
+    MarcarErrorJava --> GuardarBD
+    EjecutarJava --> SetExitoJava[Registrar Resultado Exitoso] --> GuardarBD
+    
+    %% Ruta Python (Operaciones Trigonométricas via ProcessBuilder)
+    ValidarPython["Java Invoca Python mediante ProcessBuilder"] --> EvaluarPython{"¿Respuesta<br/>de Python?"}
+    
+    EvaluarPython -- "ERROR;mensaje<br/>(ej: tan 90°, asin 2)" --> MarcarErrorPy[Registrar Mensaje de Error]
+    EvaluarPython -- "OK;resultado" --> SetExitoPy[Registrar Resultado Exitoso]
+    
+    MarcarErrorPy --> GuardarBD
+    SetExitoPy --> GuardarBD
+    
+    %% Registro en BD y Salida
+    GuardarBD[("Insertar Registro en Tabla 'calculo'<br/>(Guardar Éxito o Fallo)")] --> MostrarSalida[/Mostrar Resultado o Mensaje de Error/]
+    MostrarSalida --> Fin([Fin del Programa])
 
-    %% Estilos para mejorar la visualización
-    classDef startEnd fill:#f9d0c4,stroke:#333,stroke-width:2px;
-    classDef io fill:#d4e6f1,stroke:#333,stroke-width:1px;
-    classDef process fill:#d5f5e3,stroke:#333,stroke-width:1px;
-    classDef decision fill:#fcf3cf,stroke:#333,stroke-width:2px;
+    %% Estilos en Blanco y Negro
+    classDef bw fill:#fff,stroke:#000,color:#000,stroke-width:1.5px;
 
-    class Inicio,Fin startEnd;
-    class Menu,LeerOpcion,PedirNum,PedirAngulo,MostrarResJava,MostrarResPython io;
-    class ProcesoJava,LlamadaPython,ProcesoPython,LeerSalida process;
-    class EvaluarOpcion,Continuar decision;
+    class Inicio,CargarCat,MostrarCat,SeleccionarOp,ValidarOp,MostrarErrOp,Fin0,DeterminarAridad,LeerOpDos,LeerOpUno,ChequearTrig,LeerModo,ValidarJava,MarcarErrorJava,EjecutarJava,SetExitoJava,ValidarPython,EvaluarPython,MarcarErrorPy,SetExitoPy,GuardarBD,MostrarSalida,Fin bw;
