@@ -1,4 +1,4 @@
-´´´mermaid
+```mermaid
 
 erDiagram
     %% Relaciones no identificadoras
