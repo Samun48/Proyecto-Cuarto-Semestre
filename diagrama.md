@@ -24,7 +24,6 @@ flowchart TD
     %% Ruta Java (Operaciones Básicas)
     LeerModo --> ValidarPython
     
-    ChequearTrig -- No --> ValidarJava{"¿Validación Previa OK?<br/>(ej: Div por cero)"}
     ValidarJava -- "No (Div por 0)" --> MarcarErrorJava[Registrar Mensaje de Error]
     ValidarJava -- Sí --> EjecutarJava[Procesar Operación en Java]
     
