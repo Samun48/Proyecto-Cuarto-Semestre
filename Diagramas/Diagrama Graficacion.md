@@ -1,3 +1,5 @@
+```mermaid
+
 flowchart TD
     %% Entrada de Datos y Parámetros
     Inicio([Inicio]) --> SeleccionarFn[/Seleccionar Función a Graficar/]
